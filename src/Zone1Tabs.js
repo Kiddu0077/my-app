@@ -9,8 +9,8 @@ const videoTabs = [
   { title: "Waiting Area", url: "/Zone-01/Zone01-WaitingArea.webm" },
   { title: "Conference Hall", url: "/Zone-01/Zone01-Conference Hall.webm" },
   { title: "Display Area", url: "/Zone-01/Zone01- Display Area.webm" },
-  { title: "Digital Twin Lab 2", url: "/Zone-01/Zone01-Lab02.webm" },
-  { title: "Lounge", url: "/Zone-01/Zone01-Lounge.webm" },
+  { title: "Digital Twin Lab 2", url: "/Zone-01/Zone01- Lab02.webm" },
+  { title: "Lounge", url: "/Zone-01/Zone01- Lounge.webm" },
   { title: "Cafétéria", url: "/Zone-01/Zone01-Cafeteria.webm" },
 ];
 
