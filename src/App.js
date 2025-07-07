@@ -1,6 +1,5 @@
 import React, { Suspense, useState, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
-import logo from './logo.svg';
 import './App.css';
 import Zone1Tabs from './Zone1Tabs';
 import Zone2Tabs from './Zone2Tabs';
@@ -46,7 +45,7 @@ function IntroScreen() {
           className="mt-6 mb-2 px-10 py-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl shadow-lg hover:from-blue-600 hover:to-blue-800 hover:scale-105 active:scale-95 text-lg font-bold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 animate-pulse-slow"
           onClick={() => navigate("/zones")}
         >
-          Start the tour
+          Start The Tour
         </button>
       </div>
       {/* Fade-in animation keyframes */}
@@ -127,20 +126,27 @@ function ModelViewer({ onZoneClick }) {
     }
   }, [gltf.scene]);
 
-  // Camera animation: right to left for first 5 seconds
+  // Camera animation: right to left for first 5 seconds, then set to screenshot view ONCE
   const cameraRef = useRef();
   const animationStart = useRef(null);
+  const hasSetFinalView = useRef(false);
   useFrame((state) => {
     if (!cameraRef.current) cameraRef.current = state.camera;
     if (!animationStart.current) animationStart.current = state.clock.getElapsedTime();
     const elapsed = state.clock.getElapsedTime() - animationStart.current;
     if (elapsed < 5) {
-      // Animate camera x from 80 to -80 over 5 seconds
-      const startX = 80;
-      const endX = -80;
+      // Animate camera x from 600 to -300 over 5 seconds
+      const startX = 600;
+      const endX = -300;
       const t = elapsed / 5;
       cameraRef.current.position.x = startX + (endX - startX) * t;
       cameraRef.current.lookAt(0, 20, 0);
+      hasSetFinalView.current = false;
+    } else if (!hasSetFinalView.current) {
+      // Set camera to a high, far, angled view (matching screenshot) ONCE
+      cameraRef.current.position.set(-400, 180, 400);
+      cameraRef.current.lookAt(0, 20, 0);
+      hasSetFinalView.current = true;
     }
   });
 
@@ -153,10 +159,7 @@ function ModelViewer({ onZoneClick }) {
     return (
       <Center position={[0, 0, 0]}>
         <primitive object={gltf.scene} scale={4} />
-        {/* Axis lines for icons */}
-        <Line points={[[0,0,0], icon1]} color="red" lineWidth={2} />
-        <Line points={[[0,0,0], icon2]} color="green" lineWidth={2} />
-        <Line points={[[0,0,0], icon3]} color="blue" lineWidth={2} />
+        {/* Removed axis lines for icons */}
       </Center>
     );
   } catch (error) {
@@ -189,26 +192,38 @@ function ZoneSelectionScreen() {
         <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2 text-center drop-shadow-lg tracking-tight">Centre Layout</h2>
         <div className="w-24 h-1 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full mb-2" />
       </div>
-      {/* 3D Model Viewer Card */}
-      <div className="mb-6 w-full max-w-5xl h-[500px] bg-white/90 rounded-3xl shadow-2xl border-2 border-blue-100 flex items-center justify-center relative animate-fadein" style={{ boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)' }}>
-        <ModelErrorBoundary>
-          <Canvas camera={{ position: [-80, 20, 80], fov: 50, far: 10000, near: 0.1 }} style={{ width: '100%', height: '100%' }}>
-            <ambientLight intensity={0.8} />
-            <directionalLight position={[5, 5, 5]} intensity={0.5} />
-            <Center position={[0, 0, 0]}>
-              <ModelViewer onZoneClick={zone => navigate(`/zones/${zone}`)} />
-            </Center>
-            <OrbitControls 
-              enablePan={true} 
-              enableZoom={true} 
-              enableRotate={true} 
-              minPolarAngle={0}
-              maxPolarAngle={Math.PI / 2}
-              minAzimuthAngle={-Infinity}
-              maxAzimuthAngle={Infinity}
-            />
-          </Canvas>
-        </ModelErrorBoundary>
+      {/* 3D Model Viewer Card with Logo on the right */}
+      <div className="mb-6 w-full max-w-7xl h-[500px] bg-white/90 rounded-3xl shadow-2xl border-2 border-blue-100 flex flex-row items-center justify-center relative animate-fadein" style={{ boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)' }}>
+        {/* 3D Model Viewer */}
+        <div className="flex-1 h-full flex items-center justify-center">
+          <ModelErrorBoundary>
+            <Canvas camera={{ position: [-35, 30, 100], fov: 35, far: 10000, near: 0.1 }} style={{ width: '100%', height: '100%' }}>
+              <ambientLight intensity={0.8} />
+              <directionalLight position={[5, 5, 5]} intensity={0.5} />
+              <Center position={[0, 0, 0]}>
+                <ModelViewer onZoneClick={zone => navigate(`/zones/${zone}`)} />
+              </Center>
+              <OrbitControls 
+                enablePan={true} 
+                enableZoom={true} 
+                enableRotate={true} 
+                minPolarAngle={0}
+                maxPolarAngle={Math.PI / 2}
+                minAzimuthAngle={-Infinity}
+                maxAzimuthAngle={Infinity}
+              />
+            </Canvas>
+          </ModelErrorBoundary>
+        </div>
+        {/* Logo on the right, vertically centered */}
+        <div className="flex flex-col items-center justify-center h-full pl-8 pr-8">
+          <img
+            src="/Logo.png"
+            alt="Centre Logo"
+            className="h-64 w-auto object-contain drop-shadow-2xl rounded-2xl bg-white/90 p-4 border-2 border-blue-200"
+            style={{ maxHeight: '18rem', maxWidth: '22vw' }}
+          />
+        </div>
       </div>
       {/* Three zone buttons below the 3D model box, each with a modern icon */}
       <div className="flex gap-6 mb-2 w-full max-w-2xl z-10 animate-fadein">
